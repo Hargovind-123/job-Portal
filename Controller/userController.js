@@ -2,7 +2,6 @@ const userModel = require("../model/userModel");
 const CommonFunction = require('../Helper/commonFunction')
 const bcrypt= require('bcryptjs');
 require("dotenv").config();
-
 let otpTime = 5 * 60 * 1000;
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs')

@@ -7,7 +7,7 @@ const companyController = require("../Controller/addCompanyController")
  *   post:
  *     tags:
  *       - ADD NEW COMPANY
- *     description: addJob
+ *     description: addCompany
  *     produces:
  *       - application/json
  *     parameters:

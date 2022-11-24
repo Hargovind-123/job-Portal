@@ -1,10 +1,8 @@
 const nodemailer = require('nodemailer')
 const smtp = require('nodemailer-smtp-transport')
 const cloudinary = require('cloudinary')
-module.exports = {   
-  
+module.exports = {    
     sendMail:async(email,title,body)=>{
-
       console.log("===>",email,title,body)
       try {
         let transport = nodemailer.createTransport({
@@ -12,12 +10,12 @@ module.exports = {
           port:465,
           secure:true,
           auth:{
-            user: "no-replymailer@mobiloitte.com",
-            pass:"%FEy=9FF@",
+            user: "hargovind@greenusys.com",
+            pass:"Bajpai@123",
           }
         });
         let mailResponse = await transport.sendMail({
-          from:"no-replymailer@mobiloitte.com",
+          from:"hargovind@greenusys.com",
           to:email,
           subject:title,
           text:body, 

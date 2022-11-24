@@ -4,7 +4,7 @@ require('./databse/db');
 require('dotenv').config();
  const app = express();
  const port = process.env.PORT|| "5000";
- 
+
  const swaggerUi = require("swagger-ui-express");
 const swaggerJSDoc = require("swagger-jsdoc");
  app.use(express.json())
@@ -12,21 +12,19 @@ const swaggerJSDoc = require("swagger-jsdoc");
  const userRouter=require('./router/userRouter');
  const adminRouter=require('./router/adminRouter')
  const companyRouter = require('./router/addCompanyRouter')
-
-
-
+ const productRouter = require('./router/addProductRouter')
+ 
  app.use('/user',userRouter)
  app.use('/admin',adminRouter) 
  app.use('/company', companyRouter)
-
-
+app.use('/product', productRouter)
  const swaggerDefinition = {
   info: {
     title: "Node Test",
     version: "1.0.0",
     description: "Swagger API Docs",
   },
-  host: `localhost:5000`,
+  host: `192.168.1.21:5000`,
   basePath: "/",
 };
 const options = {

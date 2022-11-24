@@ -39,5 +39,6 @@ const messages={
     STATIC_LIST:"Static list successfully",
     WRONG:"Wrong email",
     COMPANY_ADD:"company add sucessfully",
+    PRODUCT_ADD:"product add sucesfully",
      }
     module.exports=messages
