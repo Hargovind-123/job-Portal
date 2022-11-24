@@ -4,32 +4,16 @@ const validator = require('validator')
 const schema = mongoose.Schema;
 const mongoosePaginate = require('mongoose-paginate');
 const userSchema = new schema({
-    firstLame:{
+    name:{
         type:String, require:true,
     },
-    lastName:{
-        type:String, require:true,
-    },
-    userName:{
-        type:String, require:true,
-    },
-      image:{
-        type:String, require:true,
-      },
-     dob:{
-        type:String, require:true,
-    },
-    education:{
-        type:String, require:true,
-    },
-
-    skills:{
-        type:String, require:true, 
-    }, 
-    
+   
   address:{
             type:String, require:true,
         
+    },
+    mobileNumber:{
+       type: Number, require:true,
     },
 	 email:{
         type:String, require:true,
@@ -79,9 +63,7 @@ userSchema.plugin(mongoosePaginate)
   }
         else {
             let admin ={
-                firstName:"Hargovind",
-                lastName:"Bajpai",
-                userName:"Hargovind@123 ",
+                name:"Hargovind",
                 mobileNumber:"8009652104",
                 address:"Uttar pradesh",
                 email:"admin@gmail.com",

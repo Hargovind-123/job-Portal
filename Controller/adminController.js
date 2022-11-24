@@ -12,31 +12,38 @@ const { response } = require('express');
 let otpTime = 4 * 60 * 1000
 module.exports = {
 	login: async (req, res) => {
-		try {
-			const { email, password } = req.body
-			if (email && password) {
-				const admin = await userModel.findOne({ email: email, status: "ACTIVE", userType: "ADMIN" })
-				if (admin) {
-					const isMatch = await bcrypt.compareSync(password, admin.password)
-					if (email === admin.email && isMatch) {
-						const token = await jwt.sign({ adminI: admin._id, email: email }, "hello", { expiresIn: "2d" })
-						return res.json({ responseCode: responseCode.SUCCESS, responseMessage: responseMesage.ADMIN_LOG_IN, responseResult: admin, token: token })
+        
+        try {
+            const { email, password } = req.body
+            if (email && password) {
+             const admin = await userModel.findOne({userType:"ADMIN"})                             
+                if (admin) {
+                    const isMatch = await bcrypt.hashSync(password, admin.password)
+                    console.log("===========>19",isMatch)
+                    if (admin.password==isMatch) {
+                        const token = await jwt.sign({ adminId:admin._id, email: email }, "Mobiloitte", { expiresIn: "1d" })
+            
+                        res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMesage.ADMIN_LOG_IN, responseResult:admin, token:token})
+                
+                    } else {
+                        res.send({ responseCode: responseCode.EMAIL_PASSWORD, responseMessage: responseMesage.EMAIL_PASSWORD, })
+                    }
+                } else {
+                    res.send({ responseCode: responseCode.ADMIN_NOT_FOUND, responseMessage: responseMesage.ADMIN_NOT_FOUND })
+                }
 
-					} else {
-						return res.json({ responseCode: responseCode.EMAIL_PASSWORD, responseMessage: responseMesage.EMAIL_PASSWORD })
+            } else {
+                res.send({ responseCode: responseCode.BOTH_FIELDS_REQUIRED, responseMessage: responseMesage.BOTH_FIELDS_REQUIRED})
 
-					}
-				} else {
-					return res.json({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMesage.ADMIN_NOT_FOUND, })
-				}
-			}
-		} catch (error) {
-			return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG })
-		}
-	},
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    },
 	forgotPassword: async (req, res) => {
 		try {
-			const adminData = await userModel.findOne({ email: req.body.email, status: "ACTIVE", userType: "ADMIN" })
+			const adminData = await userModel.findOne({  userType: "ADMIN" })
 			if (!adminData) {
 				res.send({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMesage.ADMIN_NOT_FOUND })
 			} else {
@@ -66,30 +73,31 @@ module.exports = {
 		}
 	},
 	resendOtp: async (req, res) => {
-		try {
-			let admin = await userModel.findOne({ email: req.body.email, userType: "ADMIN", status: "ACTIVE" })
-			if (!admin) {
-				return res.json({ responseCode: responseCode.USER_NOT_FOUND, responseMessge: responseMesage.ADMIN_NOT_FOUND })
-
-			} else {
-				let otp1 = generateOtp();
-				expTime = Date.now() + otpTime
-				let subject = `otp for resend`
-				let text = `your otp Is:${otp1}`;
-				let mail = await CommonFunction.sendMail(req.body.email, subject, text)
-				if (mail) {
-					let adminSave = await userModel.findByIdAndUpdate({ _id: admin._id }, { $set: { expTime, otp: otp1 } }, { new: true });
-					if (adminSave) {
-						return res.json({ responseCode: responseCode.SUCCESS, responseMessage: responseMesage.RESEND_OTP })
-					}
-				}
-			}
-
-		} catch (error) {
-			return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG })
-
-		}
-	},
+        try {
+            let admin = await userModel.findOne({ status:"ACTIVE",userType:"ADMIN" })
+            console.log("==========>",admin)
+            if (!admin) {
+                res.send({ responseCode: responseCode.ADMIN_NOT_FOUND, responseMessage: responseMesage.ADMIN_NOT_FOUND })
+            } else {
+                let otp1 = generateOtp();
+                expTime = Date.now() + otpTime ;
+                let subject = 'Otp for resend';
+                let text = `your Otp Is:${otp1}`;
+                await CommonFunction.sendMail(req.body.email, subject, text)
+                if (admin) {
+                    let adminSave = await userModel.findByIdAndUpdate({ _id: admin._id }, { $set: { expTime: expTime, otp: otp1 } }, { new: true });
+                    if (adminSave) {
+                        res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMesage.RESEND_OTP , responseResult: adminSave })
+                    }
+                }
+    
+            }
+    
+        } catch (error) {
+            console.log(error)
+            res.send({ responseCode: responseCode.SOMETHING_WRONG, responsMessage: responseMesage.SOMETHING_WRONG })
+        }
+    },
 	resetPassword: async (req, res) => {
 		try {
 			const { email, otp, newPassword, confirm_password } = req.body

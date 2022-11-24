@@ -1,22 +1,39 @@
+const { urlencoded } = require('express');
 const mongoose = require('mongoose');
 const schema = require('mongoose').Schema
 const mongoosePaginate = require('mongoose-paginate');
-const planSchema = new schema({
+const companySchema = new schema({
 userId:{
    type: mongoose.Schema.Types.ObjectId, ref:"ADMIN"
 },
-planName:{
+companyName:{
  type:String, require:true
 },
-price:{
+personName:{
 	type:String, require:true
 },
-currency:{
+gstNumber:{
 	type:String, require:true
 },
-description:{
+mobileNumber:{
+	type:Number, require:true
+},
+email:{
 	type:String, require:true
 },
+address:{
+	type: String, require:true
+},
+city:{
+type: String, require:true
+},
+pinCode:{
+	type:Number, require:true
+},
+website:{
+	type:String, require:true
+},
+
 userType:{
 	type:String, enum:["ADMIN", "USER"],default:"ADMIN"
 	
@@ -27,6 +44,6 @@ status:{type:String, enum:["ACTIVE", "DELETE"], default:"ACTIVE"}
 	timestamps:true
 }
 )
-planSchema.plugin(mongoosePaginate)
-const planModel = mongoose.model("Plan",planSchema)
-module.exports=planModel;
+companySchema.plugin(mongoosePaginate)
+const companyModel = mongoose.model("company",companySchema)
+module.exports= companyModel;

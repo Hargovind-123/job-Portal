@@ -2,7 +2,7 @@ const userModel = require("../model/userModel");
 const CommonFunction = require('../Helper/commonFunction')
 const bcrypt= require('bcryptjs');
 require("dotenv").config();
-const{genrateOtp} = require("../Helper/commonFunction")
+
 let otpTime = 5 * 60 * 1000;
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs')
@@ -14,7 +14,7 @@ const userType = require("../enums/userType")
 module.exports = {
     signup: async (req, res) => {
         try {
-            const { firstName, lastName,education,  skills, dob,image, email, password, confirm_password, mobileNumber} = req.body
+            const { name, email, address,password, confirm_password, mobileNumber} = req.body
             console.log("============================>17",req.body)
             let user = await userModel.findOne({ email:req.body.email, userType:"USER", status:"ACTIVE" });
           console.log("=========================>14",user);
@@ -35,29 +35,24 @@ module.exports = {
                      console.log("===>39", hashPassword)
                          let Tittle = 'Otp Verification'
                         let body = `Your Otp is ${otp}`
-                        await CommonFunction.sendMail(req.body.email, Tittle, body)
+                     await CommonFunction.sendMail(req.body.email, Tittle, body)
+                    
                       const doc = await userModel({ email:email})
-                    //   let image = await CommonFunction.uploadImage1(req.body.image)
-                        const doc1 = await userModel({
-                        
-                            firstName:firstName,
-                            lastName:lastName,                          
-                            education:education,
-                            skills: skills,
-                            dob:dob,
-                            image:image,
+                        const doc1 = await userModel({          
+                            name:name,
                             email: email,
+                            address: address,
                             mobileNumber: mobileNumber,
                             expTime: Date.now() + otpTime,
                             password: hashPassword,
                             confirm_password: hashPassword,
                             otp:otp,
-
                         }).save();
                         var oldPassword = hashPassword
                         const userSave = await userModel(doc1).save()                       
                         return res.send({ responseCode:responseCode.SUCCESS, responseMesage:responseMessage.SIGN_UP, responseResult:userSave });
                     }
+                
                     catch (error) {
                         console.log(error)
                     }
@@ -74,53 +69,72 @@ module.exports = {
         }   
 	},
   
-   vertfyOtp: async (req, res)=>{
+   verifyOtp:  async (req, res) => {
     try {
-        let user = await userModel.findOne({email:req.body.email, status:"ACTIVE", userType:"USER"})
+        let user = await userModel.findOne({ email: req.body.email })
+         console.log("===========>",823652)
         if (!user) {
-            return res.json({responseCode: responseCode.USER_NOT_FOUND, responseMesage: responseMesage.USER_NOT_FOUND})
+            res.send({ responseCode: 401, responseMesage: " data not found", responseResult:[] })
+
         } else {
-            if (req.body.otp == user.otp){
-                let currentTime = Date.now();
-                if (currentTime.otp==user.otp) {
-                    let data = await userModel.findByIdAndUpdate({_id: user._id},{$set:{otpVerification: true}},{new:true})
-               if (save) {
-                return res.json({ responseCode:responseCode.SUCCESS, responseMesage: responseMesage.OTP_VERIFY, responseResult:data})
-               } else {
-                return res.json({responseCode: responseCode.OTP_EXPIRED, responseMessage: responseMesage.OTP_EXPIRED})
-               }
+
+            if (user.otpvarification == true) {
+                console.log("==>verification")
+                res.send({ responseCode: responseCode.VERIFIED, responseMessage: responseMessage.VERIFIED })
+            } else {
+                console.log(req.body.otTp);
+                console.log(user.otp);
+
+                if (req.body.otp == user.otp) {
+                   
+                    let currentTime = Date.now();
+                    if (currentTime <= user.expTime) {
+                        console.log("hello.....")
+                        let save = await userModel.findByIdAndUpdate(
+                            { _id: user._id },
+                            { $set: { otpvarification: true } },
+                            { new: true }
+                        );
+                        if (save) {
+                            res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.OTP_VERIFY, responsResult: save })
+                        }
+                    } else {
+                        res.send({ responseCode: responseCode.OTP_EXPIRED, responseMessage: responseMessage.OTP_EXPIRED, responseResult: [] });
+                    }
+
                 } else {
-             return res.json({responseCode: responseCode.WRONG_OTP, responseMesage: responseMesage.WRONG_OTP})                 
+                    res.send({ responseCode: responseCode.WRONG_OTP, responseMessage:responseMessage.WRONG_OTP, responseResult: [] });
                 }
             }
-            
         }
+
     } catch (error) {
-        return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMesage:responseMesage.SOMETHING_WRONG})
+        console.log(error)
+        res.send({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: [] })
     }
-   },
+
+},
   resendOtp: async (req, res)=>{
    try {
-    const {email} = req.body;
-
-    let user = await userModel.findOne({email: req.body.email, status:"ACTIVE", userType:"USER"})
+       let user = await userModel.findOne({email: req.body.email})
     if(!user){
-        return res.send({responseCode:responseCode.USER_NOT_FOUND, responseMesage: responseMesage.USER_NOT_FOUND, })
+        return res.send({responseCode:responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND, })
     }
     else{
-        let ottp1 = genrateOtp();
-        expTime = Date.noe()+otpTime;
-        let subject =`otp for Resend `
-        let text = `your resend otp is : ${ottp1}`
-        await common.sendMailing(req.body.email, subject, text)
-
-      var resotp = await userModel.findByIdAndUpdate({ _id: user._id }, { $set: { expTime: expTime, otp: ottp2 } }, { new: true })
-            if (resotp) {
-                return res.send({ responseCode: responseCodes.SUCCESS, responseMessage: responseMessage.RESEND_OTP, responseResult: ottp2 })
+        let ottp = generateOtp();
+        expTime = Date.now() + otpTime;
+        let subject = `Otp for Resend`
+        let text = `your resend otp is :${ottp}`
+        await CommonFunction.sendMail(req.body.email, subject, text)
+      const  resend = await userModel.findByIdAndUpdate({ _id: user._id }, { $set: { expTime: expTime, otp: ottp } }, { new: true })
+   
+      if (resend) {
+                return res.send({ responseCode:responseCode.SUCCESS, responseMessage: responseMessage.RESEND_OTP, responseResult: ottp })
             }
-    }
+        
+}
    } catch (error) {
-    return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMesage:responseMesage.SOMETHING_WRONG})
+    return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMessage:responseMessage.SOMETHING_WRONG})
 
    }
    
@@ -130,173 +144,137 @@ forgotPassword: async (req, res, next) => {
         const { email } = req.body
         const user = await userModel.findOne({ email: email, status: "ACTIVE", usertype: "USER" })
         if (!user) {
-            return res.send({ responseCode: responseCodes.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND })
+            return res.send({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND })
         }
         else {
-            let ottp3 = genrateOtp();
-            expTime = Date.now() + 3 * 60 * 1000;
+            let ottp3 = generateOtp();
+            expTime = Date.now() + otpTime;
             subject = `otp for resend`
-            let verificationURL = `http://localhost:30000/api/verifyEmail?userId=${user.email}&OTP=${ottp3}`;
-            let text = `Your forget password otp ${ottp3} or you can berify with this URL: ${verificationURL}`;
-            console.log('129 ==>', text)
-            await common.sendMailing(req.body.email, subject, text)
-            var forpass = await userModel.findByIdAndUpdate({ _id: user._id }, { $set: { emailVerify: false, otpVerification: false, expTime: expTime, otp: ottp3 } }, { new: true })
-            var otp = ottp3
+            let text = `Your forget password otp ${ottp3}`;
+
+            await CommonFunction.sendMail(req.body.email, subject, text)
+
+            const  forpass = await userModel.findByIdAndUpdate({ _id: user._id }, { $set: {  expTime: expTime, otp: ottp3} }, { new: true })
+            if(forpass){
+            res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.FORGOT_PASSWORD, responseResult: forpass })
         }
-        res.send({ responseCode: responseCodes.SUCCESS, responseMessage: responseMessage.FORGOT_PASSWORD, responseResult: forpass })
+        
     }
+}
     catch (error) {
-        return res.send({ responseCode: responseCodes, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error })
+        return res.send({ responseCode: responseCode, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error })
     }
 },
 resetPassword: async (req, res, next) => {
     try {
 
-        const { email, newPassword, confirmPassword, otp } = req.body
+        const { email, newPassword, confirm_password, otp } = req.body
         const user = await userModel.findOne({ email: email, status: "ACTIVE", userType: "USER" })
         if (!user) {
-            return res.send({ responseCode: responseCodes.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND })
+            return res.send({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND })
         }
         else {
             const currentTime = Date.now();
             if (user.otp == otp) {
                 const expTime = user.expTime
                 if (currentTime <= expTime) {
-                    if (newPassword === confirmPassword) {
+                    if (newPassword === confirm_password) {
                         const hashnewPassword = await bcryptjs.hashSync(newPassword)
                         let userUpdate = await userModel.findByIdAndUpdate({ _id: user._id }, { $set: { password: hashnewPassword, otpVerification: true } }, { new: true })
-                        return res.send({ responseCode: responseCodes.SUCCESS, responseMessage: responseMessage.RESET_PASSWORD, responseResult: [] })
+                        return res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.RESET_PASSWORD, responseResult: userUpdate })
                     }
                     else {
-                        return res.send({ responseCode: responseCodes.PASSWORD_CONFIRMPASSWORD, responseMessage: responseMessage.PASSWORD_NOT_MATCH })
+                        return res.send({ responseCode: responseCode.PASSWORD_CONFIRMPASSWORD, responseMessage: responseMessage.PASSWORD_NOT_MATCH })
                     }
                 }
                 else {
-                    return res.send({ responseCode: responseCodes.OTP_EXPIRED, responseMessage: responseMessage.OTP_EXPIRED })
+                    return res.send({ responseCode: responseCode.OTP_EXPIRED, responseMessage: responseMessage.OTP_EXPIRED })
                 }
             }
             else {
-                return res.send({ responseCode: responseCodes.WRONG_OTP, responseMessage: responseMessage.WRONG_OTP })
+                return res.send({ responseCode: responseCode.WRONG_OTP, responseMessage: responseMessage.WRONG_OTP })
             }
         }
     }
     catch (error) {
-        return res.send({ responseCode: responseCodes.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error.message })
+        return res.send({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error.message })
     }
 },
-login: async (req, res) => {
+login:async (req, res) => {
     try {
         const { email, password } = req.body
         if (email && password) {
-            const user = await userModel.findOne({email:req.body.email, status: "ACTIVE", usertype: "USER" })
-            console.log(user);
+
+            const user = await userModel.findOne({ email: email})
+
             if (user) {
-     const isMatch = await bcryptjs.compareSync(password, user.password)
-                console.log("==--173,userlog", isMatch);
-                if (isMatch == true) {
-                    if (!user.otpVerification == true) {
-                        return res.send({ responseCode: responseCode.PASSWORD_CONFIRMPASSWORD, responseMessage: responseMessage.OTP_NOT_VERIFY })
-                    }
-                    const token = jwt.sign({ userId: user._id },
-                        "Hello", { expiresIn: "1d" })
-                    return res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.LOG_IN, responseResult: user, token: token })
+                const isMatch = await bcrypt.compareSync(password, user.password )
+                if (email === user.email && isMatch) {
+
+                 if (user.otpvarification==true) {
+                    
+                 
+                    const token = await jwt.sign({ userId: user._id, email: email }, "Mobiloitte", { expiresIn: "1d" })
+                    console.log("==================>109", token);
+
+
+                   return res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.LOG_IN, responsResult: user, token: token })
+                } else {
+                    return  res.send({ responseCode:responseCode.NOT_VERIFIED,responseMesage: responseMessage.OTP_NOT_VERIFY})
+                
                 }
-                else {
-                    return res.send({ responseCode: responseCode.PASSWORD_CONFIRMPASSWORD, responseMessage: responseMessage.PASSWORD_INVALID, responseResult: [] })
+                } else {
+                    return res.send({ responseCode: responseCode.EMAIL_PASSWORD, responseMessage: responseMessage.EMAIL_PASSWORD })
                 }
+            } else {
+                return res.send({ responseCode: responseCode.USER_NOT_FOUND,responseMessage: responseMessage.DATA_NOT_FOUND })
             }
-            else {
-                return res.send({ responseCode: responseCode.PASSWORD_CONFIRMPASSWORD, responseMessage: responseMessage.UNABLE_LOGIN, responseResult: user })
-            }
+
         } else {
-            return res.send({ responseCode: responseCode.BOTH_FIELDS_REQUIRED, responseMessage: responseMessage.BOTH_FIELDS_REQUIRED })
+            return  res.send({ responseCode: responseCode.BOTH_FIELDS_REQUIRED, responseMessage: responseMessage.BOTH_FIELDS_REQUIRED })
+
         }
-    }
-    catch (error) {
-        return res.send({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error.message })
-    }
 
+    } catch (error) {
+        return res.send({responseCode:responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG})
+    }
 },
-
-changePassword: async (req, res, next) => {
+editProfile: async (req,res)=>{
     try {
-        const { oldPassword, newPassword, confirmPassword } = req.body
-        // console.log(oldPassword,newPassword,confirmPassword)
-        const user = await userModel.findOne({ _id: req.userId._id, status: "ACTIVE", usertype: "USER" })
-        // console.log("===", user)
-        if (!user) {
-            return res.send({ responseCode: responseCodes.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND })
-        }
+       const{email, name, mobileNumber, address,}=req.body
+       
+       const user=await userModel.findOne({ userType:"USER", status:"ACTIVE"})
+       
+       if (!user) {
+        res.send({responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND})
+           
+        
+       } 
 
-        else {
-            if (newPassword && confirmPassword) {
-                const isMatch = await bcryptjs.compareSync(oldPassword, user.password)
-                if (newPassword == confirmPassword && user.otpVerification) {
-                    const hashnewPassword = await bcryptjs.hashSync(newPassword)
-
-                    let userSaave = await userModel.findOneAndUpdate({ _id: user._id }, { $set: { password: hashnewPassword } }, { new: true })
-                    return res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.CHANGE_PASSWORD, responseResult: [] })
-                }
-                else {
-                    return res.send({ responseCode: responseCode.PASSWORD_CONFIRMPASSWORD, responseMessage: responseMessage.PASSWORD_NOT_MATCH })
-                }
-            }
-            else {
-                return res.send({ responseCode: responseCode.BOTH_FIELDS_REQUIRED, responseMessage: responseMessage.BOTH_FIELDS_REQUIRED })
-            }
+   else {
+    const mail = await userModel.find({email:req.body.email})
+    if(mail==user.email){
+        return res.send({responseCode: responseCode.ALREADY_EXIST,responseMessage:responseMessage.ALREDY_EXIST})
+    }else{
+        const number=await userModel.find({number:req.body.number})
+        if(number==user.number){
+            return res.send({responseCode: responseCode.ALREADY_EXIST, responseMesage: responseMessage.NUMBER_ALREDY_EXIST})
+        }else{
+            let userProfileUpdate=await userModel.findByIdAndUpdate({_id:user._id},{email:email, name:name, address:address,mobileNumber:mobileNumber},{new:true})
+            res.send({responseCode: responseCode.SUCCESS,responseMesage: responseMessage.EDIT_PROFILE,responseResult:userProfileUpdate})
+           
         }
     }
-    catch (error) {
-        return res.send({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error.message });
+            
+      }
+    } catch (error) {
+       res.send({responseCode:501,responseMesage:"something went wrong",responseResult:error})
     }
-},
-editProfile: async (req, res, next) => {
-
-    try {
-
-        const { firstName, lastName, userName, skills, education,  mobileNumber, address, countryCode, dob, email } = req.body
-        console.log(email);
-        const user = await userModel.findOne({ _id: req.userId, status: "ACTIVE", userType: "USER" })
-        if (!user) {
-            return res.send({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND, responseResult: [] })
-        }
-        else {
-            const mobile = await userModel.findOne({ mobileNumber: mobileNumber }, { $ne: "DELETE" })
-            if (mobile) {
-                return res.send({ responseCode: responseCode.ALREADY_EXIST, responseMessage: responseMessage.NO_ALREDY_EXIST, responseResult: [] })
-            }
-            const mail = await userModel.findOne({ email: email }, { $ne: "DELETE" })
-            if (mail) {
-                return res.send({ responseCode: responseCode.ALREADY_EXIST, responseMessage: responseMessage.MAIL_ALREADY_EXIST })
-            }
-            let image 
-            let userProfileUpdate = await userModel.findByIdAndUpdate({ _id: user._id }, {
-                $set:
-                {
-                    firstName: firstName,
-                    lastName: lastName,
-                    skills: skills,
-                    userName: userName,
-                    education: education,
-                    mobileNumber: mobileNumber,
-                    address: address,
-                    countryCode: countryCode,
-                    dob : dob,
-                    email: email,
-                }
-            }, { new: true })
-
-            return res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.EDIT_PROFILE, responseResult: userProfileUpdate })
-        }
-    }
-    catch (error) {
-        return res.send({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error.message })
-    }
-},
+   },
 
 viewProfile: async (req, res) => {
     try {
-        const user = await userModel.findOne({ _id: req.userId, status: "ACTIVE", usertype: "USER" })
+        const user = await userModel.findOne({  status: "ACTIVE", usertype: "USER" })
         if (!user) {
             return res.send({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND, responseResult: [] })
         }
@@ -307,39 +285,9 @@ viewProfile: async (req, res) => {
     catch (error) {
         return res.send({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG, responseResult: error.message })
     }
-    // End Module Exports //
-},
-verifyEmail: async (req, res) => {
-    try {
-        const user = await userModel.findOne({ $or: [{ email: req.query.userId }], userType: "USER" })
-        if (!user) {
-            return res.json({ responseCode: 404, responseMessage: "user not found" })
-        }
-        else {
-            if (req.query.OTP == user.otp) {
-                let currentTime = Date.now();
-                if (currentTime <= user.expTime) {
-                    let verifyUser = await userModel.findByIdAndUpdate(user._id, { emailVerify: true, otpVerification: true }, { new: true })
-                    return res.json({ responseCode: 200, responseMessage: "Your email verified successfully.", responseResult: verifyUser })
-                }
-                else {
-                    return res.send({ responseCode: responseCode.OTP_EXPIRED, responseMessage: responseMessage.OTP_EXPIRED, responseResult: [] })
-                }
-            }
-            else {
-                return res.send({ responseCode: responseCode.WRONG_OTP, responseMessage: responseMessage.WRONG_OTP })
-            }
-
-        }
-    }
-    catch (error) {
-        console.log(error)
-        return res.json({ responseCode: 501, responseMessage: "Something went wrong!", responseResult: error })
-    }
 },
 
 }
- 
 function generateOtp() {
     let otp = Math.floor(100000 + Math.random() * 900000)
     console.log(`Your Otp ===> ${otp}`)

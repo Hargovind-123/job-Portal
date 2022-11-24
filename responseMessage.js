@@ -2,6 +2,8 @@ const messages={
     USER_NOT_FOUND:"User not found",
     ADMIN_NOT_FOUND:"admin not found",
     LOG_IN:"User login successfully",
+    VERIFIED:"user alredy vaerified",
+    
     SIGN_UP:"User signup successfully",
     ADMIN_LOG_IN:"Admin log in successfull",
     SOMETHING_WRONG:"Something went wrong",
@@ -9,11 +11,6 @@ const messages={
     OTP_NOT_VERIFY:"Please verify OTP",
     OTP_EXPIRED:"OTP time expired",
     WRONG_OTP:"OTP not match",
-    JOBTYPE_ADD:"jobType add successfully",
-    JOBTYPE_LIST:"job type list find successfully",
-    JOBTYPE_DELETE:"job type delete successfully",
-    JOB_ADD:"job add successfully",
-    PLAN_ADD_SUCCESSFULLY:"new plan add successfully",
     DATA_NOT_FOUND:" data not found ",
     DATA_EDIT:"data edit successfully",
     EMAIL_PASSWORD:"email password does not valid",
@@ -27,7 +24,7 @@ const messages={
     PASSWORD_INVALID:"Password not match",
     CHANGE_PASSWORD:"Password change successfully",
     BOTH_FIELDS_REQUIRED:"Both fields are require",
-    NOUMBER_ALREDY_EXIST:"Mobile number already exist",
+    NUMBER_ALREDY_EXIST:"Mobile number already exist",
     MAIL_ALREADY_EXIST:"Email is already exist",
     USER_ALREADY:"User already exist",
     UNABLE_LOGIN:"Unable to login",
@@ -40,7 +37,7 @@ const messages={
     STATIC_VIEW:"View static data successfully",
     STATIC_ADD:"Add static data successfully",
     STATIC_LIST:"Static list successfully",
-    JOB_ADD:"job add successfully",
     WRONG:"Wrong email",
+    COMPANY_ADD:"company add sucessfully",
      }
     module.exports=messages
