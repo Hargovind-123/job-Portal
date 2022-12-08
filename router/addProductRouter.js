@@ -10,10 +10,14 @@ const productController = require("../Controller/addProductController")
  *     description: addProduct
  *     produces:
  *       - application/json
- *     parameters:
+ *     parameters: 
  *       - name: token
  *         description: token required.
  *         in: header
+ *         required: true
+ *       - name: image
+ *         description: image required.
+ *         in: formData
  *         required: true
  *       - name: productName
  *         description: productName required.
@@ -47,7 +51,7 @@ router.post('/addProduct',productController.addProduct)
 /**
  * @swagger
  * /product/productList:
- *   put:
+ *   post:
  *     tags:
  *       - ADD NEW PRODUCT
  *     description: companyList
@@ -66,11 +70,11 @@ router.post('/addProduct',productController.addProduct)
  *       501:
  *         description: Something went wrong!
  */  
-router.put('/productList', productController.productList)
+router.post('/productList', productController.productList)
 /**
  * @swagger
  * /product/editProductData:
- *   put:
+ *   post:
  *     tags:
  *       - ADD NEW PRODUCT
  *     description: editProductData
@@ -113,11 +117,11 @@ router.put('/productList', productController.productList)
  *       501:
  *         description: Something went wrong!
  */  
-router.put('/editProductData',productController.editProductData)
+router.post('/editProductData',productController.editProductData)
 /**
  * @swagger
  * /product/productDelete:
- *   delete:
+ *   post:
  *     tags:
  *       - ADD NEW PRODUCT
  *     description: productDelete
@@ -140,5 +144,6 @@ router.put('/editProductData',productController.editProductData)
  *       501:
  *         description: Something went wrong!
  */  
-router.delete('/productDelete', productController.productDelete)
+router.post('/productDelete', productController.productDelete) 
+router.post('/searchAPI', productController.searchAPI) ;
 module.exports=router;

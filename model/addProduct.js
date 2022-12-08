@@ -16,10 +16,19 @@ quantity:{
 	type:String, require:true
 },
 discount:{
-	type:Number, require:true
-},
-GST:{
 	type:String, require:true
+},
+gst:{
+	type:String, require:true
+},
+image:{
+	type:String, require: true,
+
+},
+date:{
+	type:Date, require:true,
+	
+	default:Date.now()
 },
 
 userType:{

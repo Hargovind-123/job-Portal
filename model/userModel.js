@@ -4,38 +4,46 @@ const validator = require('validator')
 const schema = mongoose.Schema;
 const mongoosePaginate = require('mongoose-paginate');
 const userSchema = new schema({
+   
     name:{
         type:String, require:true,
+        maxlength: 50
+  
     },
+  
+    address:{type:String, require:true,
+    maxlength: 100     
+    }, 
    
-  address:{
-            type:String, require:true,
-        
-    },
     mobileNumber:{
-       type: Number, require:true,
+       type:String, require:true,
+       maxlength: 10
     },
+
 	 email:{
         type:String, require:true,
+        trim: true,
+        unique: 1
     },
-       password:{
+    
+    password:{
         type:String, require:true,
-    },
-    confirm_password:{
-        type:String, require:true
-    },
-otp:{
+    },   
+
+    otp:{
     type:Number, require:true,
 },
-mobileNumber:{
-    type:Number, require:true,
-},
+
 expTime:{
-    type:Number
+    type:String, require: true,
 },
+
 otpvarification:{
     type:Boolean, require:true,
     default:false
+},
+image:{
+    type:String, require:true
 },
 userType:{
     type: String,
@@ -44,7 +52,7 @@ userType:{
 },
 status:{
     type:String,
-    enum:["ACTIVE", "BLOCK","DELETE"],
+    enum:["ACTIVE", "BLOCK","DELETE",],
     default:"ACTIVE"
 },
   
@@ -61,7 +69,7 @@ userSchema.plugin(mongoosePaginate)
         } else if (adminResult) {
             console.log('default admin exist,')
   }
-        else {
+ else {
             let admin ={
                 name:"Hargovind",
                 mobileNumber:"8009652104",

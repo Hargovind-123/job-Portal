@@ -2,6 +2,7 @@ const express = require('express')
 const auth= require("../middleware/auth")
 const userController = require('../Controller/userController');
 const router = express.Router();
+
 /**
  * @swagger
  * /user/signup:
@@ -44,21 +45,17 @@ const router = express.Router();
  *       501:
  *         description: Something went wrong!
  */
-router.post('/signup',userController.signup);
+  router.post('/signup',userController.signup);
  /**
   * @swagger
   * /user/verifyOtp:
-  *   put:
+  *   post:
   *     tags:
   *       - USER
   *     description: verifyOtp
   *     produces:
   *       - application/json
   *     parameters:
-  *       - name: email
-  *         description: email required.
-  *         in: formData
-  *         required: true
   *       - name: otp
   *         description: otp required.
   *         in: formData
@@ -71,11 +68,11 @@ router.post('/signup',userController.signup);
   *       501:
   *         description: Something went wrong!
   */  
-  router.put('/verifyotp',userController.verifyOtp);
+  router.post('/verifyotp',userController.verifyOtp);
  /**
   * @swagger
   * /user/resendOtp:
-  *   put:
+  *   post:
   *     tags:
   *       - USER
   *     description: resendOtp
@@ -94,11 +91,11 @@ router.post('/signup',userController.signup);
   *       501:
   *         description: Something went wrong!
   */  
-  router.put('/resendOtp',userController.resendOtp);
+  router.post('/resendOtp',userController.resendOtp);
   /**
    * @swagger
    * /user/forgotPassword:
-   *   put:
+   *   post:
    *     tags:
    *       - USER
    *     description: forgotPassword
@@ -117,8 +114,7 @@ router.post('/signup',userController.signup);
    *       501:
    *         description: Something went wrong!
    */  
-  router.put('/forgotPassword',userController.forgotPassword);
-  
+  router.post('/forgotPassword',userController.forgotPassword); 
 /**
  * @swagger
  * /user/login:
@@ -146,11 +142,10 @@ router.post('/signup',userController.signup);
  *         description: Something went wrong!
  */  
  router.post('/login',userController.login);
-
   /**
    * @swagger
    * /user/resetPassword:
-   *   put:
+   *   post:
    *     tags:
    *       - USER
    *     description: resetPassword
@@ -181,14 +176,12 @@ router.post('/signup',userController.signup);
    *       501:
    *         description: Something went wrong!
    */
-  router.put('/resetPassword',userController.resetPassword);
-
-
+  router.post('/resetPassword',userController.resetPassword);
   /**
    * 
    * @swagger
    * /user/editProfile:
-   *   put:
+   *   post:
    *     tags:
    *       - USER
    *     description: editProfile
@@ -199,10 +192,6 @@ router.post('/signup',userController.signup);
    *         description: token required.
    *         in: header
    *         required: true
-   *       - name: _id
-   *         description: _id required.
-   *         in: query
-   *         required: true 
    *       - name: email
    *         description: email required.
    *         in: formData
@@ -227,11 +216,11 @@ router.post('/signup',userController.signup);
    *       501:
    *         description: Something went wrong!
    */
-  router.put('/editProfile',userController.editProfile)
+  router.post('/editProfile',userController.editProfile);
   /**
    * @swagger
    * /user/viewProfile:
-   *   get:
+   *   post:
    *     tags:
    *       - USER
    *     description: viewProfile
@@ -250,5 +239,28 @@ router.post('/signup',userController.signup);
    *       501:
    *         description: Something went wrong!
    */  
-  router.get('/viewProfile', userController.viewProfile)
-module.exports = router;
+  router.post('/viewProfile', userController.viewProfile);
+  // /**
+  // * @swagger
+  // * /user/userLogout:
+  // *   post:
+  // *     tags:
+  // *       - USER
+  // *     description: userLogout
+  // *     produces:
+  // *       - application/json
+  // *     parameters:
+  // *       - name: email
+  // *         description: email required.
+  // *         in: formData
+  // *         required: true
+  // *     responses:
+  // *       200:
+  // *         description: Thanks, Logout successfully.
+  // *       500:
+  // *         description: Internal Server Error
+  // *       501:
+  // *         description: Something went wrong!
+  // */  
+  // router.post('/userLogout', userController.userLogout)
+   module.exports = router;

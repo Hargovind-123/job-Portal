@@ -10,18 +10,13 @@ module.exports = {
 	addCompany: async (req, res) => {
 		try {
 			const{companyName, personName, gstNumber, mobileNumber, email, address, city, pinCode, website} = req.body
-			 console.log("===================================>13", req.body)
 			const addData = await userModel.findOne({ userType: "ADMIN" })
-			console.log("================================================>15", addData)
 			if (!addData) {
 				return res.json({ responseCode: responseCode.DATA_NOT_FOUND, responseMessage: responseMessage.DATA_NOT_FOUND})
-
 			} else {
 				var companyD = await companyModel.findOne({ gstNumber: req.body.gstNumber, email: req.body.email, companyName: req.body.companyName})
-				console.log("============================================>21",companyD)
 				if (companyD) {
 					return res.json({responseCode: responseCode.ALREADY_EXIST, responseMessage: responseMessage.ALREDY_EXIST})
-
 				} else {
 					let companyData = {
 						companyName: companyName,
@@ -35,13 +30,10 @@ module.exports = {
 						pinCode: pinCode,
 						website: website,
 					}
-
 					const companyAdd = await companyModel(companyData).save()
-					console.log("===========================================>39",companyAdd)
 					return res.json({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.COMPANY_ADD, responseResult: companyAdd })
 				}
 			}
-
 		} catch (error) {
 			return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMessage: responseMessage.SOMETHING_WRONG })
 		}

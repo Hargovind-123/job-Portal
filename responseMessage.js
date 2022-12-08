@@ -3,7 +3,6 @@ const messages={
     ADMIN_NOT_FOUND:"admin not found",
     LOG_IN:"User login successfully",
     VERIFIED:"user alredy vaerified",
-    
     SIGN_UP:"User signup successfully",
     ADMIN_LOG_IN:"Admin log in successfull",
     SOMETHING_WRONG:"Something went wrong",
@@ -40,5 +39,7 @@ const messages={
     WRONG:"Wrong email",
     COMPANY_ADD:"company add sucessfully",
     PRODUCT_ADD:"product add sucesfully",
+    CUSTOMER_ADD: "customer add successfully",
+    CUSTOMER_BLOCK:"customer block successfully",
      }
     module.exports=messages

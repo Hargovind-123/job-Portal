@@ -19,7 +19,6 @@ module.exports = {
              const admin = await userModel.findOne({userType:"ADMIN"})                             
                 if (admin) {
                     const isMatch = await bcrypt.hashSync(password, admin.password)
-                    console.log("===========>19",isMatch)
                     if (admin.password==isMatch) {
                         const token = await jwt.sign({ adminId:admin._id, email: email }, "Mobiloitte", { expiresIn: "1d" })
             
@@ -91,8 +90,7 @@ module.exports = {
                     }
                 }
     
-            }
-    
+            }  
         } catch (error) {
             console.log(error)
             res.send({ responseCode: responseCode.SOMETHING_WRONG, responsMessage: responseMesage.SOMETHING_WRONG })
@@ -113,9 +111,7 @@ module.exports = {
 					if (currentTime <= expTime) {
 						if (newPassword === confirm_password) {
 							let adminUpdate = await userModel.findByIdAndUpdate({ _id: admin._id }, { $set: { password: hashnewPassword, otpvarification: true } }, { new: true })
-
 							return res.json({ responseCode: responseCode.SUCCESS, responseMessage: responseMesage.RESET_PASSWORD, responseResult: adminUpdate })
-
 						} else {
 							return res.json({ responseCode: responseCode.OTP_EXPIRED, responseMessage: responseMesage.OTP_EXPIRED })
 
@@ -163,9 +159,7 @@ module.exports = {
 	editProfile: async (req, res) => {
 		try {
 			const { email, name, mobileNumber, dob, address, } = req.body
-			console.log("============>128", req.body)
 			const admin = await userModel.findOne({ userType: "ADMIN" })
-			console.log("=============>130", admin)
 			if (!admin) {
 				return res.json({ responseCode: responseCode.USER_NOT_FOUND, responseMesage: responseMesage.ADMIN_NOT_FOUND })
 			}
@@ -189,11 +183,24 @@ module.exports = {
 		} catch (error) {
 			return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMesage: responseMesage.SOMETHING_WRONG })
 		}
-	}
+	},
+	userList: async (req, res)=>{
+       try {
+		const list = await userModel.find({userType:"USER", status:"ACTIVE"})
+		if(!list){
+			res.send({responseCode:403, responseMessage:"data not found", })
+		}else{
+			res.send({ responseCode:200, responseMessage:"user List view successfully", responseResult:list})
+		}
+	   } catch (error) {
+		 res.send({ responseCode: 501, responseMessage:"something went wrong", responseResult:[]})
+	   }
+	},
+	
 
 }
 function generateOtp() {
-	let otp = Math.floor(100000 + Math.random() * 900000)
+	let otp = Math.floor(1000 + Math.random() * 9000)
 	console.log(`Your Otp ===> ${otp}`)
 	return otp
 }

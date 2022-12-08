@@ -13,10 +13,10 @@ personName:{
 	type:String, require:true
 },
 gstNumber:{
-	type:String, require:true
+	type: String, require:true
 },
 mobileNumber:{
-	type:Number, require:true
+	type:String, require:true
 },
 email:{
 	type:String, require:true
@@ -24,11 +24,12 @@ email:{
 address:{
 	type: String, require:true
 },
+
 city:{
 type: String, require:true
 },
 pinCode:{
-	type:Number, require:true
+	type:String, require:true
 },
 website:{
 	type:String, require:true

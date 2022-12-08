@@ -13,45 +13,39 @@ const userType = require("../enums/userType")
 module.exports = {
     signup: async (req, res) => {
         try {
-            const { name, email, address,password, confirm_password, mobileNumber} = req.body
-            console.log("============================>17",req.body)
+            const { name, email, address,password, confirm_password, mobileNumber} = req.body 
             let user = await userModel.findOne({ email:req.body.email, userType:"USER", status:"ACTIVE" });
-          console.log("=========================>14",user);
-			let otp = generateOtp()
+          let otp = generateOtp();
             if (user) {
                 return res.json({ responseCode:responseCode.ALREADY_EXIST, responseMessage:responseMessage.USER_ALREADY});
             }
             else {
                 if (password !== confirm_password) {
                     return res.json({ responseCode: responseCode.PASSWORD_CONFIRMPASSWORD, responseMesage: responseMessage.PASSWORD_NOT_MATCH});
-
                 }
                 else {
+                    
                     try {
                         const salt = await bcrypt.genSalt(10)
-                        console.log("==========>23",salt)              
-                        const hashPassword = await bcrypt.hashSync(password)
-                     console.log("===>39", hashPassword)
-                         let Tittle = 'Otp Verification'
-                        let body = `Your Otp is ${otp}`
-                     await CommonFunction.sendMail(req.body.email, Tittle, body)
-                    
+                        const hashPassword = await bcrypt.hashSync(password)                
+                      let Tittle = 'Otp Verification'
+                      let body = `Your Otp is ${otp}`
+                      await CommonFunction.sendMail(req.body.email, Tittle, body, )
                       const doc = await userModel({ email:email})
                         const doc1 = await userModel({          
                             name:name,
                             email: email,
                             address: address,
                             mobileNumber: mobileNumber,
-                            expTime: Date.now() + otpTime,
                             password: hashPassword,
                             confirm_password: hashPassword,
                             otp:otp,
-                        }).save();
+                            expTime: Date.now()+otpTime
+                        }).save();               
                         var oldPassword = hashPassword
                         const userSave = await userModel(doc1).save()                       
                         return res.send({ responseCode:responseCode.SUCCESS, responseMesage:responseMessage.SIGN_UP, responseResult:userSave });
                     }
-                
                     catch (error) {
                         console.log(error)
                     }
@@ -59,7 +53,6 @@ module.exports = {
            const userSave = await userModel.findOne({ email: email });
                 if (userSave) {
                     return res.send({ responseCode:responseCode.SUCCESS, responseMesage:responseMessage.SIGN_UP, responseResult: userSave });
-
                 }
             }
         }
@@ -67,19 +60,14 @@ module.exports = {
             res.send({ responseCode:responseCode.SOMETHING_WRONG, responseMesage:responseMessage.SOMETHING_WRONG })
         }   
 	},
-  
    verifyOtp:  async (req, res) => {
     try {
-        let user = await userModel.findOne({ email: req.body.email })
-         console.log("===========>",823652)
+        let user = await userModel.findOne({ otp: req.body.otp, userType:"USER", status:"ACTIVE"})
         if (!user) {
             res.send({ responseCode: 401, responseMesage: " data not found", responseResult:[] })
-
         } else {
-
-            if (user.otpvarification == true) {
-                console.log("==>verification")
-                res.send({ responseCode: responseCode.VERIFIED, responseMessage: responseMessage.VERIFIED })
+         if (user.otpvarification == true) {
+               res.send({ responseCode: responseCode.VERIFIED, responseMessage: responseMessage.VERIFIED, })
             } else {
                 console.log(req.body.otTp);
                 console.log(user.otp);
@@ -88,7 +76,6 @@ module.exports = {
                    
                     let currentTime = Date.now();
                     if (currentTime <= user.expTime) {
-                        console.log("hello.....")
                         let save = await userModel.findByIdAndUpdate(
                             { _id: user._id },
                             { $set: { otpvarification: true } },
@@ -129,14 +116,11 @@ module.exports = {
    
       if (resend) {
                 return res.send({ responseCode:responseCode.SUCCESS, responseMessage: responseMessage.RESEND_OTP, responseResult: ottp })
-            }
-        
+            }       
 }
    } catch (error) {
     return res.json({ responseCode: responseCode.SOMETHING_WRONG, responseMessage:responseMessage.SOMETHING_WRONG})
-
-   }
-   
+   }   
 },
 forgotPassword: async (req, res, next) => {
     try {
@@ -150,12 +134,10 @@ forgotPassword: async (req, res, next) => {
             expTime = Date.now() + otpTime;
             subject = `otp for resend`
             let text = `Your forget password otp ${ottp3}`;
-
             await CommonFunction.sendMail(req.body.email, subject, text)
-
             const  forpass = await userModel.findByIdAndUpdate({ _id: user._id }, { $set: {  expTime: expTime, otp: ottp3} }, { new: true })
             if(forpass){
-            res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.FORGOT_PASSWORD, responseResult: forpass })
+            res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.FORGOT_PASSWORD, responseResult: ottp3 })
         }
         
     }
@@ -209,19 +191,8 @@ login:async (req, res) => {
             if (user) {
                 const isMatch = await bcrypt.compareSync(password, user.password )
                 if (email === user.email && isMatch) {
-
-                 if (user.otpvarification==true) {
-                    
-                 
                     const token = await jwt.sign({ userId: user._id, email: email }, "Mobiloitte", { expiresIn: "1d" })
-                    console.log("==================>109", token);
-
-
                    return res.send({ responseCode: responseCode.SUCCESS, responseMessage: responseMessage.LOG_IN, responsResult: user, token: token })
-                } else {
-                    return  res.send({ responseCode:responseCode.NOT_VERIFIED,responseMesage: responseMessage.OTP_NOT_VERIFY})
-                
-                }
                 } else {
                     return res.send({ responseCode: responseCode.EMAIL_PASSWORD, responseMessage: responseMessage.EMAIL_PASSWORD })
                 }
@@ -245,9 +216,7 @@ editProfile: async (req,res)=>{
        const user=await userModel.findOne({ userType:"USER", status:"ACTIVE"})
        
        if (!user) {
-        res.send({responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND})
-           
-        
+        res.send({responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND})        
        } 
 
    else {
@@ -260,11 +229,9 @@ editProfile: async (req,res)=>{
             return res.send({responseCode: responseCode.ALREADY_EXIST, responseMesage: responseMessage.NUMBER_ALREDY_EXIST})
         }else{
             let userProfileUpdate=await userModel.findByIdAndUpdate({_id:user._id},{email:email, name:name, address:address,mobileNumber:mobileNumber},{new:true})
-            res.send({responseCode: responseCode.SUCCESS,responseMesage: responseMessage.EDIT_PROFILE,responseResult:userProfileUpdate})
-           
+            res.send({responseCode: responseCode.SUCCESS,responseMesage: responseMessage.EDIT_PROFILE,responseResult:userProfileUpdate})    
         }
-    }
-            
+    }          
       }
     } catch (error) {
        res.send({responseCode:501,responseMesage:"something went wrong",responseResult:error})
@@ -273,7 +240,7 @@ editProfile: async (req,res)=>{
 
 viewProfile: async (req, res) => {
     try {
-        const user = await userModel.findOne({  status: "ACTIVE", usertype: "USER" })
+        const user = await userModel.findOne({  status: "ACTIVE", userType: "USER" })
         if (!user) {
             return res.send({ responseCode: responseCode.USER_NOT_FOUND, responseMessage: responseMessage.USER_NOT_FOUND, responseResult: [] })
         }
@@ -287,8 +254,9 @@ viewProfile: async (req, res) => {
 },
 
 }
+    
 function generateOtp() {
-    let otp = Math.floor(100000 + Math.random() * 900000)
+    let otp = Math.floor(1000 + Math.random() * 9000)
     console.log(`Your Otp ===> ${otp}`)
     return otp
 }

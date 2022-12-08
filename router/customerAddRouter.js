@@ -1,13 +1,13 @@
 const express =require('express')
 const router = express.Router();
-const companyController = require("../Controller/addCompanyController")
+const customerController = require("../Controller/customerAddCustomer")
  /**
  * @swagger
- * /company/addCompany:
+ * /customer/addCustomer:
  *   post:
  *     tags:
- *       - ADD NEW COMPANY
- *     description: addCompany
+ *       - ADD NEW CUSTOMER
+ *     description: addCustomer
  *     produces:
  *       - application/json
  *     parameters:
@@ -19,54 +19,46 @@ const companyController = require("../Controller/addCompanyController")
  *         description: companyName required.
  *         in: formData
  *         required: true
- *       - name: personName
- *         description: personName required.
+ *       - name: customerName
+ *         description: customerName required.
  *         in: formData
  *         required: true
- *       - name: gstNumber
- *         description: gstNumber required.
- *         in: formData
- *         required: true
- *       - name: mobileNumber
- *         description: mobileNumber required.
+ *       - name: address
+ *         description: address required.
  *         in: formData
  *         required: true
  *       - name: email
  *         description: email required.
  *         in: formData
+ *         required: true
+ *       - name: contactNumber
+ *         description: contactNumber required.
+ *         in: formData
  *         required: true   
- *       - name: address
- *         description: address required.
+ *       - name: zipCode
+ *         description:  zipCode required.
  *         in: formData
  *         required: true
  *       - name: city
  *         description: city required.
  *         in: formData
  *         required: true
- *       - name: pinCode
- *         description: pinCode required.
- *         in: formData
- *         required: true
- *       - name: website
- *         description: website required.
- *         in: formData
- *         required: true
  *     responses:
  *       200:
- *         description: Thanks, new plan add successfully.
+ *         description: Thanks, new customer add successfully.
  *       500:
  *         description: Internal Server Error
  *       501:
  *         description: Something went wrong!
  */  
-router.post('/addCompany',companyController.addCompany)
+router.post('/addCustomer',customerController.addCustomer)
 /**
  * @swagger
- * /company/companyList:
+ * /customer/customerList:
  *   post:
  *     tags:
- *       - ADD NEW COMPANY 
- *     description: companyList
+ *       - ADD NEW CUSTOMER
+ *     description: customerList
  *     produces:
  *       - application/json
  *     parameters:
@@ -82,14 +74,14 @@ router.post('/addCompany',companyController.addCompany)
  *       501:
  *         description: Something went wrong!
  */  
-router.post('/companyList', companyController.companyList)
+router.post('/customerList', customerController.customerList)
 /**
  * @swagger
- * /company/editCompanyData:
+ * /customer/editCustomerData:
  *   post:
  *     tags:
- *       - ADD NEW COMPANY
- *     description: editCompanyData
+ *       - ADD NEW CUSTOMER
+ *     description: editCustomerData
  *     produces:
  *       - application/json
  *     parameters:
@@ -105,36 +97,32 @@ router.post('/companyList', companyController.companyList)
  *         description: companyName required.
  *         in: formData
  *         required: true
- *       - name: personName
- *         description: personName required.
+ *       - name: customerName
+ *         description: customerName required.
  *         in: formData
  *         required: true
- *       - name: gstNumber
- *         description: gstNumber required.
- *         in: formData
- *         required: true
- *       - name: mobileNumber
- *         description: mobileNumber required.
+ *       - name: address
+ *         description: address required.
  *         in: formData
  *         required: true
  *       - name: email
  *         description: email required.
  *         in: formData
+ *         required: true
+ *       - name: countryCode 
+ *         description: countryCode required.
+ *         in: formData
+ *         required: true
+ *       - name: contactNumber
+ *         description: contactNumber required.
+ *         in: formData
  *         required: true   
- *       - name: address
- *         description: address required.
+ *       - name: zipCode
+ *         description:  zipCode required.
  *         in: formData
  *         required: true
  *       - name: city
  *         description: city required.
- *         in: formData
- *         required: true
- *       - name: pinCode
- *         description: pinCode required.
- *         in: formData
- *         required: true
- *       - name: website
- *         description: website required.
  *         in: formData
  *         required: true
  *     responses:
@@ -145,14 +133,14 @@ router.post('/companyList', companyController.companyList)
  *       501:
  *         description: Something went wrong!
  */  
-router.post('/editCompanyData',companyController.editCompanyData)
+router.post('/editCustomerData',customerController.editCustomerData)
 /**
  * @swagger
- * /company/companyDelete:
+ * /customer/customerDelete:
  *   post:
  *     tags:
- *       - ADD NEW COMPANY 
- *     description: company
+ *       - ADD NEW CUSTOMER 
+ *     description: customerDelete
  *     produces:
  *       - application/json
  *     parameters:
@@ -172,5 +160,32 @@ router.post('/editCompanyData',companyController.editCompanyData)
  *       501:
  *         description: Something went wrong!
  */  
-router.post('/companyDelete', companyController.companyDelete)
+router.post('/customerDelete', customerController.customerDelete)
+/**
+ * @swagger
+ * /customer/customerBlock:
+ *   post:
+ *     tags:
+ *       - ADD NEW CUSTOMER 
+ *     description: customerBlock
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: token
+ *         description: token required.
+ *         in: header
+ *         required: true
+ *       - name: _id
+ *         description: _id required.
+ *         in: query
+ *         required: true      
+ *     responses:
+ *       200:
+ *         description: Thanks,  data block  successfully.
+ *       500:
+ *         description: Internal Server Error
+ *       501:
+ *         description: Something went wrong!
+ */  
+ router.post('/customerBlock', customerController.customerBlock)
 module.exports=router;
